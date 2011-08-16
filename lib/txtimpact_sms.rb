@@ -148,6 +148,16 @@ class TxtImpact
   end
 
 
+  # registers a keyword
+  # @param opts Options for creating the keyword
+  # @option opts [String] :service_name Service name for the keyword
+  # @option opts [String] :keyword
+  # @option opts [String] :processor_url The url of the webserice
+  # @option opts [String] :help_msg Response for help message
+  # @option opts [String] :stop_msg Responce for opt-out message
+  # @return [Integer] The service id
+  # @raise ArgumentError If arguments are missing/invalid
+  # @raise KeywordIsTakenError
   def register_keyword(opts)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
     params = common_options
