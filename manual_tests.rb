@@ -59,9 +59,17 @@ puts "Testing subscribing for more credits"
 
 current_credits = prompt "Enter the number of available credits currently: "
 
-connection.subscribe_credits(4)
-subscribe_credits_working = true_false_prompt "Are there now #{current_credits + 4} additional credits?"
+puts connection.subscribe_credits(4)
+puts "The next part doesn't work as the credit card isn't accepted"
+subscribe_credits_working = true_false_prompt "Are there now #{current_credits.to_i + 4} credits available?"
 fail_with_message "subscribe for more credits not working" unless subscribe_credits_working
+
+puts "Testing keyword lookup api"
+res = connection.is_keyword_available? "testing_keyword_34551"
+fail_with_message "is_keyword_available? should have returned true" unless res
+
+
+
 
 
 
