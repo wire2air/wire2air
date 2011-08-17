@@ -5,6 +5,7 @@ require 'bundler/setup'
 require 'trollop'
 require './lib/txtimpact_sms'
 
+
 def prompt(string)
   STDOUT.sync = true
   print string
@@ -21,6 +22,17 @@ end
 def fail_with_message(msg)
   puts msg
   exit 1
+end
+
+def test_section(section_name)
+  puts "testing #{section_name}"
+  if yield
+    puts "#{section_name} working correctly"
+  end
+    puts "FAILED: #{section_name}"
+    exit 1
+  end
+
 end
 
 opts = Trollop::options do
@@ -49,37 +61,44 @@ connection = TxtImpact.new({
 })
 
 puts "Testing sending a message"
-msg = "test message #{Time.now}"
-puts connection.send_sms(opts[:test_number], msg)
 
-sms_working = true_false_prompt "Did a message with the text '#{msg}' get sent?"
-fail_with_message "sending sms not working" unless sms_working
+def test_send_sms
+  msg = "test message #{Time.now}"
+  puts connection.send_sms(opts[:test_number], msg)
 
-puts "Testing subscribing for more credits"
+  true_false_prompt "Did a message with the text '#{msg}' get sent?"
+end
 
-current_credits = prompt "Enter the number of available credits currently: "
 
-puts connection.subscribe_credits(4)
-puts "The next part doesn't work as the credit card isn't accepted"
-subscribe_credits_working = true_false_prompt "Are there now #{current_credits.to_i + 4} credits available?"
-fail_with_message "subscribe for more credits not working" unless subscribe_credits_working
+def test_subscribing_more_credits
+  current_credits = prompt "Enter the number of available credits currently: "
 
-puts "Testing keyword lookup api"
-res = connection.is_keyword_available? "testing_keyword_34551"
-fail_with_message "is_keyword_available? should have returned true" unless res
+  puts connection.subscribe_credits(4)
+  puts "The next part doesn't work as the credit card isn't accepted"
+  true_false_prompt "Are there now #{current_credits.to_i + 4} credits available?"
+end
+
+
+def test_keyword_lookup_api
+  puts "Testing keyword lookup api"
+  connection.is_keyword_available? "testing_keyword_34551"
+end
+
 
 
 puts "Testing keyword registration api"
-res = connection.register_keyword(
-    :service_name => "Test service name",
-    :keyword => 'test_keyword',
-    :processor_url => 'http://example.com/processor',
-    :help_msg => "help message",
-    :stop_msg => "stop message"
-)
+def test_keyword_registration_api
+  res = connection.register_keyword(
+      :service_name => "Test service name",
+      :keyword => 'test_keyword',
+      :processor_url => 'http://example.com/processor',
+      :help_msg => "help message",
+      :stop_msg => "stop message"
+  )
 
-res = true_false_prompt "Did a new keyword get registered with name 'test_keyword'"
-fail_with_message "new keyword" unless res
+  true_false_prompt "Did a new keyword get registered with name 'test_keyword'"
+end
+
 
 
 

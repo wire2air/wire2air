@@ -5,11 +5,11 @@ require 'uri'
 class TxtImpact
 
 
-  class FailedAuthenticationError < Error; end
-  class NotEnoughCreditsError < Error; end
-  class KeywordIsTakenError < Error; end
-  class AccountUpdateError  < Error; end
-  class CreditCardDeclinedError < Error; end
+  class FailedAuthenticationError < StandardError; end
+  class NotEnoughCreditsError < StandardError; end
+  class KeywordIsTakenError < StandardError; end
+  class AccountUpdateError  < StandardError; end
+  class CreditCardDeclinedError < StandardError; end
 
 
   class JobId
@@ -18,7 +18,7 @@ class TxtImpact
     end
     attr_reader :mobile_number, :sms_id
     def self.from_s(str)
-      matches = str.match /^JOBID: \[(\d+)\]:\[(\d+)\]/
+      matches = str.match /^JOBID: (\d+):(\d+)/
       JobId.new(matches[1], matches[2])
     end
   end
@@ -67,9 +67,9 @@ class TxtImpact
     params['FROM'] = short_code
     params['TEXT'] = text
 
-    batch_send = to_number.is_a? Integer
+    batch_send = !(to_number.is_a? Integer)
 
-    if batch_send
+    if !batch_send
       params['TO'] = to_number
     else
       params['TO'] = to_number.join(',')
@@ -77,7 +77,7 @@ class TxtImpact
     end
 
     url = URI.parse('http://smsapi.wire2air.com/smsadmin/submitsm.aspx')
-    res = Net::HTTP.post_form(url, params)
+    res = Net::HTTP.post_form(url, params).body
     case res
       when /^ERR: 301/
         raise FailedAuthenticationError
@@ -87,6 +87,7 @@ class TxtImpact
     if (batch_send)
       res.match(/BATCHID: \d+/)[1]
     else
+      puts res
       JobId.from_s(res)
     end
   end
@@ -102,7 +103,7 @@ class TxtImpact
         'KEYWORDREDITS' => keyword_credits
 
     })
-    case res
+    case res.body
       when /^Err:70[34]/
         raise ArgumentError.new "Missing username or password"
       when /^Err:705/
@@ -125,7 +126,7 @@ class TxtImpact
         'USERID' => userid,
         'PASSWORD' => password,
         'VASID' => vasid
-    })
+    }).body
     raise FailedAuthenticationError if res =~ /ERR: 301/
     res.to_i
   end
@@ -142,7 +143,7 @@ class TxtImpact
         'KEYWORD' => keyword
     })
 
-    response.include? "Err:0:"
+    response.body.include? "Err:0:"
 
 
   end
@@ -168,7 +169,7 @@ class TxtImpact
     params['STOPMSG'] = opts[:stop_msg]
     params['ACTION'] = 'ADD'
 
-    res = Net::HTTP.post_form(url, params)
+    res = Net::HTTP.post_form(url, params).body
 
     case res of
       when /Err:70[012346789]/, /Err:71[0134]/
@@ -181,7 +182,6 @@ class TxtImpact
 
     res.match(/SERVICEID:\d+/)[1].to_i
 
-    end
   end
 
   private
