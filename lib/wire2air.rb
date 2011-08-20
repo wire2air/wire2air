@@ -1,8 +1,15 @@
 require 'net/http'
 require 'uri'
 
-# TODO parse results and raise exceptions based on output
-class TxtImpact
+# Class for interacting with the TxtImpact sms sending and receiving service.
+# Example usage:
+#   connection = TxtImpact.new(:username => 'your_username',
+#     :password => 'your password',
+#     :profile_id => 42,
+#     :short_code => 1111,
+#     :vasid => 12345)
+#   connection.send_sms()
+class Wire2Air
 
 
   class FailedAuthenticationError < StandardError; end
@@ -51,7 +58,7 @@ class TxtImpact
 
   public
   # sends an sms
-  # @param [Integer, Array<Integer>] to_number DESTINATION MOBILE NUMBER. [(country
+  # @param [String, Array<String>] to_number DESTINATION MOBILE NUMBER. [(country
   #   code) + mobile number] e.g 17321234567 (for
   #   US), 919810601000 (for India)
   # @param [String] text The message text
@@ -67,7 +74,7 @@ class TxtImpact
     params['FROM'] = short_code
     params['TEXT'] = text
 
-    batch_send = !(to_number.is_a? Integer)
+    batch_send = !(to_number.is_a? String)
 
     if !batch_send
       params['TO'] = to_number
@@ -75,6 +82,8 @@ class TxtImpact
       params['TO'] = to_number.join(',')
       params['BATCHNAME'] = batch_reference
     end
+
+    p params
 
     url = URI.parse('http://smsapi.wire2air.com/smsadmin/submitsm.aspx')
     res = Net::HTTP.post_form(url, params).body
@@ -162,7 +171,8 @@ class TxtImpact
   def register_keyword(opts)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
     params = common_options
-    params['SERVICE NAME'] = opts[:service_name]
+    params['SHORTCODEID'] = short_code
+    params['SERVICENAME'] = opts[:service_name]
     params['KEYWORD'] = opts[:keyword]
     params['PROCESSORURL'] = opts[:processor_url]
     params['HELPMSG'] = opts[:help_msg]
@@ -171,7 +181,7 @@ class TxtImpact
 
     res = Net::HTTP.post_form(url, params).body
 
-    case res of
+    case res
       when /Err:70[012346789]/, /Err:71[0134]/
         raise ArgumentError.new res
       when /Err:705/
@@ -180,8 +190,24 @@ class TxtImpact
         raise "Sticky session is not allowed"
     end
 
-    res.match(/SERVICEID:\d+/)[1].to_i
+    res.match(/SERVICEID:(\d+)/)[1].to_i
 
+  end
+
+  # deletes a service created with register_keyword.
+  # @param [Integer] service_id The id of the service to delete
+  # @param [String] keyword the keyword for the service
+  def delete_service(service_id, keyword)
+    url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
+    params = common_options
+    params.delete 'PROFILEID'
+    params['SHORTCODEID'] = short_code
+    params['SERVICEID'] = service_id.to_s
+    params['KEYWORD'] = keyword
+    params['ACTION'] = 'DELETE'
+    p params
+    res = Net::HTTP.post_form(url, params)
+    raise StandardError.new res.body unless res.body.start_with? "SERVICEID"
   end
 
   private

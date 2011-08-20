@@ -1,8 +1,9 @@
-= txtimpact_sms
+= Wire2Air
 
 Description goes here.
 
-== Contributing to txtimpact_sms
+== Contributing to wire2air:w
+
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
@@ -14,6 +15,6 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2011 David Miani. See LICENSE.txt for
+Copyright (c) 2011 wire2air. See LICENSE.txt for
 further details.
 

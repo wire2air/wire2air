@@ -3,7 +3,8 @@
 
 require 'bundler/setup'
 require 'trollop'
-require './lib/txtimpact_sms'
+require './lib/wire2air'
+require 'rspec'
 
 
 def prompt(string)
@@ -26,78 +27,77 @@ end
 
 def test_section(section_name)
   puts "testing #{section_name}"
-  if yield
+  res = yield
+  if res
     puts "#{section_name} working correctly"
-  end
+  else
     puts "FAILED: #{section_name}"
     exit 1
   end
-
 end
 
 opts = Trollop::options do
-  opt :username, "The username to log in as", :type => :string
-  opt :password, "The password to log in as", :type => :string
-  opt :profile_id, "The profile_id to log in as", :type => :string
-  opt :short_code, "The short_code to log in as", :type => :string
-  opt :vasid, "The vasid to log in as", :type => :string
-  opt :test_number, "The mobile number to test with", :type => :int
+  opt :username, "The username to log in as", :type => :string, :required => true
+  opt :password, "The password to log in as", :type => :string, :required => true
+  opt :profile_id, "The profile_id to log in as", :type => :string, :required => true
+  opt :short_code, "The short_code to log in as", :type => :string, :required => true
+  opt :vasid, "The vasid to log in as", :type => :string, :required => true
+  opt :test_number, "The mobile number to test with", :type => :string, :required => true
+
+  opt :dont_test_sending_sms, "Prevent the sending of sms from being tested"
 end
 
-test_number = opts['test-number']
+
 
 connection_opts = opts.dup
-connection_opts.delete :test_number
-connection_opts.delete :help
 
-puts connection_opts.keys
+connection_opts = { :username => opts[:username], :password => opts[:password],
+                    :profile_id => opts[:profile_id], :short_code => opts[:short_code],
+                    :vasid => opts[:vasid]
+}
+connection  = Wire2Air.new connection_opts
 
-connection = TxtImpact.new({
-    :username => opts[:username],
-    :password => opts[:password],
-    :profile_id => opts['profile-id'],
-    :short_code => opts['short-code'],
-    :vasid => opts[:vasid]
-})
+describe "sms api" do
+  unless opts[:dont_test_sending_sms]
+    it "should send a single sms message" do
+      msg = "test message #{Time.now}"
+      puts connection.send_sms(opts[:test_number], msg)
 
-puts "Testing sending a message"
+     true_false_prompt("Did a message with the text '#{msg}' get sent?").should be_true
+    end
+  end
 
-def test_send_sms
-  msg = "test message #{Time.now}"
-  puts connection.send_sms(opts[:test_number], msg)
 
-  true_false_prompt "Did a message with the text '#{msg}' get sent?"
+  it 'can add more credits to the account' do
+    current_credits = prompt "Enter the number of available credits currently: "
+
+    puts connection.subscribe_credits(4)
+    true_false_prompt("Are there now #{current_credits.to_i + 4} credits available?").should be_true
+  end
+
+  it 'can find if a keyword is available' do
+    connection.is_keyword_available?("testing_keyword_34551").should be_true
+  end
+
+  it "can register a keyword and unregister a keyword" do
+    service_name = "A service name"
+    service_keyword = 'testing_keyword'
+    service_id = connection.register_keyword(
+        :service_name => service_name,
+        :keyword => service_keyword,
+        :processor_url => 'http://example.com/processor',
+        :help_msg => "help message",
+        :stop_msg => "stop message"
+    )
+
+    true_false_prompt("Did a new service get registered with name '#{service_name}'").should be_true
+    connection.delete_service(service_id, service_keyword)
+    true_false_prompt("Did the service '#{service_name}' get deleted?").should be_true
+
+
+  end
 end
 
-
-def test_subscribing_more_credits
-  current_credits = prompt "Enter the number of available credits currently: "
-
-  puts connection.subscribe_credits(4)
-  puts "The next part doesn't work as the credit card isn't accepted"
-  true_false_prompt "Are there now #{current_credits.to_i + 4} credits available?"
-end
-
-
-def test_keyword_lookup_api
-  puts "Testing keyword lookup api"
-  connection.is_keyword_available? "testing_keyword_34551"
-end
-
-
-
-puts "Testing keyword registration api"
-def test_keyword_registration_api
-  res = connection.register_keyword(
-      :service_name => "Test service name",
-      :keyword => 'test_keyword',
-      :processor_url => 'http://example.com/processor',
-      :help_msg => "help message",
-      :stop_msg => "stop message"
-  )
-
-  true_false_prompt "Did a new keyword get registered with name 'test_keyword'"
-end
 
 
 
