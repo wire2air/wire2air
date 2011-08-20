@@ -4,13 +4,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{txtimpact_sms}
+  s.name = %q{wire2air}
   s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = [%q{David Miani}]
   s.date = %q{2011-08-20}
-  s.description = %q{TODO: longer description of your gem}
+  s.description = %q{Allows sending sms and voice messages, checking and adding more credits, subscribing to keywords}
   s.email = %q{davidmiani@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -28,13 +28,14 @@ Gem::Specification.new do |s|
     "lib/wire2air.rb",
     "manual_tests.rb",
     "spec/spec_helper.rb",
-    "spec/txtimpact_sms_spec.rb"
+    "spec/txtimpact_sms_spec.rb",
+    "txtimpact_sms.gemspec"
   ]
-  s.homepage = %q{http://github.com/nanothief/txtimpact_sms}
+  s.homepage = %q{http://github.com/nanothief/wire2air}
   s.licenses = [%q{MIT}]
   s.require_paths = [%q{lib}]
-  s.rubygems_version = %q{1.8.7}
-  s.summary = %q{TODO: one-line summary of your gem}
+  s.rubygems_version = %q{1.8.8}
+  s.summary = %q{Ruby interface to the wire2air sms and voice mail service}
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

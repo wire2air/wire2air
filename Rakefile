@@ -14,11 +14,11 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "txtimpact_sms"
-  gem.homepage = "http://github.com/nanothief/txtimpact_sms"
+  gem.name = "wire2air"
+  gem.homepage = "http://github.com/nanothief/wire2air"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Ruby interface to the wire2air sms and voice mail service}
+  gem.description = %Q{Allows sending sms and voice messages, checking and adding more credits, subscribing to keywords}
   gem.email = "davidmiani@gmail.com"
   gem.authors = ["David Miani"]
   # dependencies defined in Gemfile
