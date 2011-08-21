@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
     "manual_tests.rb",
     "spec/spec_helper.rb",
     "spec/txtimpact_sms_spec.rb",
-    "txtimpact_sms.gemspec"
+    "wire2air.gemspec"
   ]
   s.homepage = %q{http://github.com/nanothief/wire2air}
   s.licenses = [%q{MIT}]
