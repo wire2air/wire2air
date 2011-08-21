@@ -10,7 +10,10 @@ doc
 
 # bundler
 .bundle
-Gemfile.lock # shouldn't include Gemfile.lock in a library
+Gemfile.lock
+*.gem
+
+
 
 # jeweler generated
 pkg
