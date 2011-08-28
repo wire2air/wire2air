@@ -1,10 +1,15 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
+# Usage: Run this script passing in parameters for --username, --password,
+# --profile-id, --short-code, --vasid, --test-number
+# It will then prompt for information and test using that
+# eg ruby manual_tests.rb --username some_username --password some_password --profile-id 42 --short-code 3 --vasid 34 --test-number 12345677
 
-require 'bundler/setup'
+require 'rubygems'
 require 'trollop'
-require './lib/wire2air'
+require 'wire2air'
 require 'rspec'
+require 'rspec/autorun'
 
 
 def prompt(string)
@@ -97,7 +102,6 @@ describe "sms api" do
 
   end
 end
-
 
 
 

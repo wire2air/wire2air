@@ -62,25 +62,28 @@ class Wire2Air
   #   code) + mobile number] e.g 17321234567 (for
   #   US), 919810601000 (for India)
   # @param [String] text The message text
-  # @param [String] batch_reference If sending to multiple numbers, is used to identify
-  #   the send request used in reports
+  # @param [Hash] opts Extra optional settings
+  # @option  opts [String] :batch_reference A reference string used when sending many sms
+  # @option opts [String] :network_id Th id of the destination network. This is the same as
+  # what is passed from incoming sms message for the HTTP API.
   # @return [JobId, Integer] If a single sms is being sent, a JobId is returned. Otherwise
   # an Integer for the BatchID is returned.
   # @raise NotEnoughError Not enough credits to send the sms
   # @raise FailedAuthenticationError some authentication details are wrong
-  def send_sms(to_number, text, batch_reference = "batched send")
+  def send_sms(to_number, text, opts = {})
     params = common_options
     params['VERSION'] = '2.0'
     params['FROM'] = short_code
     params['TEXT'] = text
-
+    params['NETWORKID'] = opts[:network_id] if opts.has_key? :network_id
     batch_send = !(to_number.is_a? String)
 
     if !batch_send
       params['TO'] = to_number
     else
       params['TO'] = to_number.join(',')
-      params['BATCHNAME'] = batch_reference
+      params['BATCHNAME'] = opts[:batch_reference]
+
     end
 
     p params
