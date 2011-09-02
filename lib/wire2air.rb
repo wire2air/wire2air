@@ -37,12 +37,10 @@ class Wire2Air
   # @option opts [String] :username The user name to connect as
   # @option opts [String] :password The password (in plain text) for connecting
   # @option opts [Integer] :profile_id The id of the profile
-  # @options opts [Integer] :short_code The short code for the account
   # @options opts [Integer] :vasid The vasid of the account
   def initialize(opts)
-    valid_keys =[:username, :password, :profile_id, :short_code, :vasid]
+    valid_keys =[:username, :password, :profile_id, :vasid]
     if opts.keys.sort != valid_keys.sort
-      puts opts.keys
       raise ArgumentError.new "The options must only have the keys #{valid_keys}"
     end
 
@@ -52,7 +50,7 @@ class Wire2Air
 
   end
 
-  attr_reader :username, :password, :vasid, :profile_id, :short_code
+  attr_reader :username, :password, :vasid, :profile_id
 
   alias :userid :username
 
@@ -144,14 +142,16 @@ class Wire2Air
   end
 
   # Checks whether the keyword can be registered.
+  # @param [String] short_code The short code id
+  # @param [String] keyword The keyword to search for
   # @return Boolean true if the keyword is available
-  def is_keyword_available?(keyword)
+  def is_keyword_available?(short_code, keyword)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/checkkeywordapi.aspx')
     response = Net::HTTP.post_form(url, {
         'USERID' => userid,
         'PASSWORD' => password,
         'VASID' => vasid,
-        'SHORTCODEID' => short_code,
+        'SHORTCODE' => short_code,
         'KEYWORD' => keyword
     })
 
@@ -164,6 +164,7 @@ class Wire2Air
   # registers a keyword
   # @param opts Options for creating the keyword
   # @option opts [String] :service_name Service name for the keyword
+  # @option opts [String] :short_code_id
   # @option opts [String] :keyword
   # @option opts [String] :processor_url The url of the webserice
   # @option opts [String] :help_msg Response for help message
@@ -174,7 +175,7 @@ class Wire2Air
   def register_keyword(opts)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
     params = common_options
-    params['SHORTCODEID'] = short_code
+    params['SHORTCODEID'] = opts[:short_code_id]
     params['SERVICENAME'] = opts[:service_name]
     params['KEYWORD'] = opts[:keyword]
     params['PROCESSORURL'] = opts[:processor_url]
@@ -200,11 +201,11 @@ class Wire2Air
   # deletes a service created with register_keyword.
   # @param [Integer] service_id The id of the service to delete
   # @param [String] keyword the keyword for the service
-  def delete_service(service_id, keyword)
+  def delete_service(short_code_id, service_id, keyword)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
     params = common_options
     params.delete 'PROFILEID'
-    params['SHORTCODEID'] = short_code
+    params['SHORTCODEID'] = short_code_id
     params['SERVICEID'] = service_id.to_s
     params['KEYWORD'] = keyword
     params['ACTION'] = 'DELETE'
