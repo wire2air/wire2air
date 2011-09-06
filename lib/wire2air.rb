@@ -164,14 +164,18 @@ class Wire2Air
   end
 
 
-  # registers a keyword
+  # Wire2air provides simple HTTP interface for clients to register available keyword
+  # for a given short code.
   # @param opts Options for creating the keyword
   # @option opts [String] :service_name Service name for the keyword
   # @option opts [String] :short_code_id
   # @option opts [String] :keyword
-  # @option opts [String] :processor_url The url of the webserice
+  # @option opts [String] :processor_url The url of the webservice
   # @option opts [String] :help_msg Response for help message
   # @option opts [String] :stop_msg Responce for opt-out message
+  # @option opts [String] :action  :add -> Register new service with keyword
+  # :delete -> Delete keyword from service
+  # Default is :add
   # @return [Integer] The service id
   # @raise ArgumentError If arguments are missing/invalid
   # @raise KeywordIsTakenError
@@ -187,7 +191,7 @@ class Wire2Air
     params['PROCESSORURL'] = opts[:processor_url]
     params['HELPMSG'] = opts[:help_msg]
     params['STOPMSG'] = opts[:stop_msg]
-    params['ACTION'] = 'ADD'
+    params['ACTION'] = (opts[:action] == :delete) ? "DELETE" : "ADD"
 
     res = Net::HTTP.post_form(url, params).body
     puts res
@@ -203,24 +207,6 @@ class Wire2Air
 
     res.match(/SERVICEID:(\d+)/)[1].to_i
 
-  end
-
-  # deletes a service created with register_keyword.
-  # @param [Integer] service_id The id of the service to delete
-  # @param [String] keyword the keyword for the service
-  def delete_service(short_code_id, service_id, keyword)
-    url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
-    params = {}
-    params['USERID'] = username
-    params['PASSWORD'] = password
-    params['VASID'] = vasid
-    params['SHORTCODE'] = short_code_id
-    params['SERVICEID'] = service_id.to_s
-    params['KEYWORD'] = keyword
-    params['ACTION'] = 'DELETE'
-    p params
-    res = Net::HTTP.post_form(url, params)
-    raise StandardError.new res.body unless res.body.start_with? "SERVICEID"
   end
 
   private

@@ -71,12 +71,16 @@ describe "sms api" do
     end
   end
 
+  it 'can check the number of available credits' do
+    credits = connection.check_sms_credits
+    true_false_prompt("Are there #{credits} number of sms credits available?").should be_true
+  end
 
   it 'can add more credits to the account' do
-    current_credits = prompt "Enter the number of available credits currently: "
+    current_credits = prompt "Enter the number of available keyword credits currently: "
 
     puts connection.subscribe_keywords(4)
-    true_false_prompt("Are there now #{current_credits.to_i + 4} credits available?").should be_true
+    true_false_prompt("Are there now #{current_credits.to_i + 4} keyword credits available?").should be_true
   end
 
   it 'can find if a keyword is available' do
@@ -96,8 +100,6 @@ describe "sms api" do
     )
 
     true_false_prompt("Did a new service get registered with name '#{service_name}'").should be_true
-    connection.delete_service(opts[:short_code], service_id, service_keyword)
-    true_false_prompt("Did the service '#{service_name}' get deleted?").should be_true
 
 
   end
