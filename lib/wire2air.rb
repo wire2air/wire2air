@@ -8,7 +8,7 @@ require 'uri'
 #     :profile_id => 42,
 #     :short_code => 1111,
 #     :vasid => 12345)
-#   connection.send_sms()
+#   connection.submit_sm()
 class Wire2Air
 
 
@@ -69,7 +69,7 @@ class Wire2Air
   # an Integer for the BatchID is returned.
   # @raise NotEnoughError Not enough credits to send the sms
   # @raise FailedAuthenticationError some authentication details are wrong
-  def send_sms(short_code, to_number, text, opts = {})
+  def submit_sm(short_code, to_number, text, opts = {})
     params = common_options
     params['VERSION'] = '2.0'
     params['FROM'] = short_code
@@ -106,7 +106,7 @@ class Wire2Air
   # Adds some credits to the account
   # @param [Integer] keyword_credits The number of credits to add
   # @return [void]
-  def subscribe_credits(keyword_credits = 1)
+  def subscribe_keywords(keyword_credits = 1)
     url = URI.parse('http://mzone.wire2air.com/mserver/api/subscribekeywords.aspx')
     res = Net::HTTP.post_form(url, {
         'USERID' => userid,
@@ -131,7 +131,7 @@ class Wire2Air
 
   # returns the number of credits available
   # @return Integer the number of credits available
-  def credit_count
+  def check_sms_credits
     url = URI.parse('http://smsapi.wire2air.com/smsadmin/checksmscredits.aspx')
     res = Net::HTTP.post_form(url, {
         'USERID' => userid,
@@ -146,7 +146,7 @@ class Wire2Air
   # @param [String] short_code The short code id
   # @param [String] keyword The keyword to search for
   # @return Boolean true if the keyword is available
-  def is_keyword_available?(short_code, keyword)
+  def check_keyword(short_code, keyword)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/checkkeywordapi.aspx')
     response = Net::HTTP.post_form(url, {
         'USERID' => userid,

@@ -65,7 +65,7 @@ describe "sms api" do
   unless opts[:dont_test_sending_sms]
     it "should send a single sms message" do
       msg = "test message #{Time.now}"
-      puts connection.send_sms(opts[:short_code], opts[:test_number], msg)
+      puts connection.submit_sm(opts[:short_code], opts[:test_number], msg)
 
      true_false_prompt("Did a message with the text '#{msg}' get sent?").should be_true
     end
@@ -75,12 +75,12 @@ describe "sms api" do
   it 'can add more credits to the account' do
     current_credits = prompt "Enter the number of available credits currently: "
 
-    puts connection.subscribe_credits(4)
+    puts connection.subscribe_keywords(4)
     true_false_prompt("Are there now #{current_credits.to_i + 4} credits available?").should be_true
   end
 
   it 'can find if a keyword is available' do
-    connection.is_keyword_available?(opts[:short_code], "testing_keyword_34551").should be_true
+    connection.check_keyword(opts[:short_code], "testing_keyword_34551").should be_true
   end
 
   it "can register a keyword and unregister a keyword" do
