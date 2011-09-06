@@ -7,7 +7,7 @@
 
 require 'rubygems'
 require 'trollop'
-require './lib/wire2air'
+require 'wire2air'
 require 'rspec'
 require 'rspec/autorun'
 
