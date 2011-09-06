@@ -59,6 +59,7 @@ class Wire2Air
   # @param [String, Array<String>] to_number DESTINATION MOBILE NUMBER. [(country
   #   code) + mobile number] e.g 17321234567 (for
   #   US), 919810601000 (for India)
+  # @param [String] short_code The short code number
   # @param [String] text The message text
   # @param [Hash] opts Extra optional settings
   # @option  opts [String] :batch_reference A reference string used when sending many sms
@@ -68,7 +69,7 @@ class Wire2Air
   # an Integer for the BatchID is returned.
   # @raise NotEnoughError Not enough credits to send the sms
   # @raise FailedAuthenticationError some authentication details are wrong
-  def send_sms(to_number, text, opts = {})
+  def send_sms(short_code, to_number, text, opts = {})
     params = common_options
     params['VERSION'] = '2.0'
     params['FROM'] = short_code
@@ -151,9 +152,11 @@ class Wire2Air
         'USERID' => userid,
         'PASSWORD' => password,
         'VASID' => vasid,
-        'SHORTCODE' => short_code,
+        'SHORTCODEID' => short_code,
         'KEYWORD' => keyword
     })
+
+    puts response.body
 
     response.body.include? "Err:0:"
 
@@ -174,7 +177,10 @@ class Wire2Air
   # @raise KeywordIsTakenError
   def register_keyword(opts)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
-    params = common_options
+    params = {}
+    params['USERID'] = username
+    params['PASSWORD'] = password
+    params['VASID'] = vasid
     params['SHORTCODEID'] = opts[:short_code_id]
     params['SERVICENAME'] = opts[:service_name]
     params['KEYWORD'] = opts[:keyword]
@@ -184,6 +190,7 @@ class Wire2Air
     params['ACTION'] = 'ADD'
 
     res = Net::HTTP.post_form(url, params).body
+    puts res
 
     case res
       when /Err:70[012346789]/, /Err:71[0134]/
@@ -203,8 +210,10 @@ class Wire2Air
   # @param [String] keyword the keyword for the service
   def delete_service(short_code_id, service_id, keyword)
     url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
-    params = common_options
-    params.delete 'PROFILEID'
+    params = {}
+    params['USERID'] = username
+    params['PASSWORD'] = password
+    params['VASID'] = vasid
     params['SHORTCODEID'] = short_code_id
     params['SERVICEID'] = service_id.to_s
     params['KEYWORD'] = keyword

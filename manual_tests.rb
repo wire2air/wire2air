@@ -45,7 +45,7 @@ opts = Trollop::options do
   opt :username, "The username to log in as", :type => :string, :required => true
   opt :password, "The password to log in as", :type => :string, :required => true
   opt :profile_id, "The profile_id to log in as", :type => :string, :required => true
-  opt :short_code, "The short_code to log in as", :type => :string, :required => true
+  opt :short_code, "The short_code to use in tests", :type => :string, :required => true
   opt :vasid, "The vasid to log in as", :type => :string, :required => true
   opt :test_number, "The mobile number to test with", :type => :string, :required => true
 
@@ -57,8 +57,7 @@ end
 connection_opts = opts.dup
 
 connection_opts = { :username => opts[:username], :password => opts[:password],
-                    :profile_id => opts[:profile_id], :short_code => opts[:short_code],
-                    :vasid => opts[:vasid]
+                    :profile_id => opts[:profile_id], :vasid => opts[:vasid]
 }
 connection  = Wire2Air.new connection_opts
 
@@ -66,7 +65,7 @@ describe "sms api" do
   unless opts[:dont_test_sending_sms]
     it "should send a single sms message" do
       msg = "test message #{Time.now}"
-      puts connection.send_sms(opts[:test_number], msg)
+      puts connection.send_sms(opts[:short_code], opts[:test_number], msg)
 
      true_false_prompt("Did a message with the text '#{msg}' get sent?").should be_true
     end
@@ -81,14 +80,15 @@ describe "sms api" do
   end
 
   it 'can find if a keyword is available' do
-    connection.is_keyword_available?("testing_keyword_34551").should be_true
+    connection.is_keyword_available?(opts[:short_code], "testing_keyword_34551").should be_true
   end
 
   it "can register a keyword and unregister a keyword" do
-    service_name = "A service name"
-    service_keyword = 'testing_keyword'
+    service_name = "New service"
+    service_keyword = 'some_keyword'
     service_id = connection.register_keyword(
         :service_name => service_name,
+        :short_code_id => opts[:short_code],
         :keyword => service_keyword,
         :processor_url => 'http://example.com/processor',
         :help_msg => "help message",
@@ -96,7 +96,7 @@ describe "sms api" do
     )
 
     true_false_prompt("Did a new service get registered with name '#{service_name}'").should be_true
-    connection.delete_service(service_id, service_keyword)
+    connection.delete_service(opts[:short_code], service_id, service_keyword)
     true_false_prompt("Did the service '#{service_name}' get deleted?").should be_true
 
 
