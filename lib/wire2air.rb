@@ -181,7 +181,7 @@ class Wire2Air
     params['USERID'] = username
     params['PASSWORD'] = password
     params['VASID'] = vasid
-    params['SHORTCODEID'] = opts[:short_code_id]
+    params['SHORTCODE'] = opts[:short_code_id]
     params['SERVICENAME'] = opts[:service_name]
     params['KEYWORD'] = opts[:keyword]
     params['PROCESSORURL'] = opts[:processor_url]
@@ -214,7 +214,7 @@ class Wire2Air
     params['USERID'] = username
     params['PASSWORD'] = password
     params['VASID'] = vasid
-    params['SHORTCODEID'] = short_code_id
+    params['SHORTCODE'] = short_code_id
     params['SERVICEID'] = service_id.to_s
     params['KEYWORD'] = keyword
     params['ACTION'] = 'DELETE'

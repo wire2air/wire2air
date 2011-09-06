@@ -7,7 +7,7 @@
 
 require 'rubygems'
 require 'trollop'
-require 'wire2air'
+require './lib/wire2air'
 require 'rspec'
 require 'rspec/autorun'
 
@@ -85,7 +85,7 @@ describe "sms api" do
 
   it "can register a keyword and unregister a keyword" do
     service_name = "New service"
-    service_keyword = 'some_keyword'
+    service_keyword = 'new_keyword'
     service_id = connection.register_keyword(
         :service_name => service_name,
         :short_code_id => opts[:short_code],
