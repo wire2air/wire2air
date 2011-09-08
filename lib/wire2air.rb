@@ -136,7 +136,7 @@ class Wire2Air
         'PASSWORD' => password,
         'VASID' => vasid
     }).body
-    raise FailedAuthenticationError if res =~ /ERR: 301/
+    raise FailedAuthenticationError if res =~ /ERR:301/
     res.to_i
   end
 
@@ -154,8 +154,16 @@ class Wire2Air
         'KEYWORD' => keyword
     })
 
-    response.body.include? "Err:0:"
-
+    case response.body
+      when /Err:0/
+        return true
+      when /Err:705/
+        return false
+      when /Err:301/
+        raise FailedAuthenticationError
+      else
+        raise StandardError.new response.body
+    end
 
   end
 
