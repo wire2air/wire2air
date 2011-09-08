@@ -1,12 +1,12 @@
 require 'net/http'
 require 'uri'
 
-# Class for interacting with the TxtImpact sms sending and receiving service.
+# Class for interacting with the Wire2Air sms sending and receiving service.
 # Example usage:
-#   connection = TxtImpact.new(:username => 'your_username',
+#   connection = Wire2Air.new(:username => 'your_username',
 #     :password => 'your password',
 #     :profile_id => 42,
-#     :short_code => 1111,
+#     :from => 1111,
 #     :vasid => 12345)
 #   connection.submit_sm()
 class Wire2Air
@@ -31,7 +31,7 @@ class Wire2Air
   end
 
 
-  # Initializes a TxtImpact object with the common profile info needed
+  # Initializes a Wire2Air object with the common profile info needed
   # for making connections.
   # @param [Hash] opts The profile connection options
   # @option opts [String] :username The user name to connect as
@@ -56,10 +56,10 @@ class Wire2Air
 
   public
   # sends an sms
-  # @param [String, Array<String>] to_number DESTINATION MOBILE NUMBER. [(country
+  # @param [String, Array<String>] mobile_number DESTINATION MOBILE NUMBER. [(country
   #   code) + mobile number] e.g 17321234567 (for
   #   US), 919810601000 (for India)
-  # @param [String] short_code The short code number
+  # @param [String] from The short code number
   # @param [String] text The message text
   # @param [Hash] opts Extra optional settings
   # @option  opts [String] :batch_reference A reference string used when sending many sms
@@ -69,23 +69,21 @@ class Wire2Air
   # an Integer for the BatchID is returned.
   # @raise NotEnoughError Not enough credits to send the sms
   # @raise FailedAuthenticationError some authentication details are wrong
-  def submit_sm(short_code, to_number, text, opts = {})
+  def submit_sm(from, mobile_number, text, opts = {})
     params = common_options
     params['VERSION'] = '2.0'
-    params['FROM'] = short_code
+    params['FROM'] = from
     params['TEXT'] = text
     params['NETWORKID'] = opts[:network_id] if opts.has_key? :network_id
-    batch_send = !(to_number.is_a? String)
+    batch_send = !(mobile_number.is_a? String)
 
     if !batch_send
-      params['TO'] = to_number
+      params['TO'] = mobile_number
     else
-      params['TO'] = to_number.join(',')
+      params['TO'] = mobile_number.join(',')
       params['BATCHNAME'] = opts[:batch_reference]
 
     end
-
-    p params
 
     url = URI.parse('http://smsapi.wire2air.com/smsadmin/submitsm.aspx')
     res = Net::HTTP.post_form(url, params).body
@@ -152,11 +150,9 @@ class Wire2Air
         'USERID' => userid,
         'PASSWORD' => password,
         'VASID' => vasid,
-        'SHORTCODEID' => short_code,
+        'SHORTCODE' => short_code,
         'KEYWORD' => keyword
     })
-
-    puts response.body
 
     response.body.include? "Err:0:"
 
@@ -168,7 +164,7 @@ class Wire2Air
   # for a given short code.
   # @param opts Options for creating the keyword
   # @option opts [String] :service_name Service name for the keyword
-  # @option opts [String] :short_code_id
+  # @option opts [String] :short_code
   # @option opts [String] :keyword
   # @option opts [String] :processor_url The url of the webservice
   # @option opts [String] :help_msg Response for help message
@@ -185,7 +181,7 @@ class Wire2Air
     params['USERID'] = username
     params['PASSWORD'] = password
     params['VASID'] = vasid
-    params['SHORTCODE'] = opts[:short_code_id]
+    params['SHORTCODE'] = opts[:short_code]
     params['SERVICENAME'] = opts[:service_name]
     params['KEYWORD'] = opts[:keyword]
     params['PROCESSORURL'] = opts[:processor_url]
@@ -199,6 +195,8 @@ class Wire2Air
     case res
       when /Err:70[012346789]/, /Err:71[0134]/
         raise ArgumentError.new res
+      when /Err:300/
+        raise FailedAuthenticationError
       when /Err:705/
         raise KeywordIsTakenError
       when /Err:712/

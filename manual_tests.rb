@@ -92,7 +92,7 @@ describe "sms api" do
     service_keyword = 'new_keyword'
     service_id = connection.register_keyword(
         :service_name => service_name,
-        :short_code_id => opts[:short_code],
+        :short_code => opts[:short_code],
         :keyword => service_keyword,
         :processor_url => 'http://example.com/processor',
         :help_msg => "help message",
