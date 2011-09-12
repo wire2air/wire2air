@@ -145,7 +145,7 @@ class Wire2Air
   # @param [String] keyword The keyword to search for
   # @return Boolean true if the keyword is available
   def check_keyword(short_code, keyword)
-    url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/checkkeywordapi.aspx')
+    url = URI.parse('http://mzone.wire2air.com/mserver/servicemanager/api/checkkeywordapi.aspx')
     response = Net::HTTP.post_form(url, {
         'USERID' => userid,
         'PASSWORD' => password,
@@ -184,7 +184,7 @@ class Wire2Air
   # @raise ArgumentError If arguments are missing/invalid
   # @raise KeywordIsTakenError
   def register_keyword(opts)
-    url = URI.parse('http://mzone.wire2air.com/shortcodemanager/api/RegisterKeywordAPI.aspx')
+    url = URI.parse('http://mzone.wire2air.com/mserver/servicemanager/api/checkkeywordapi.aspx')
     params = {}
     params['USERID'] = username
     params['PASSWORD'] = password
