@@ -6,9 +6,10 @@ require 'uri'
 #   connection = Wire2Air.new(:username => 'your_username',
 #     :password => 'your password',
 #     :profile_id => 42,
-#     :from => 1111,
-#     :vasid => 12345)
-#   connection.submit_sm()
+#     :vasid => 12345) # replace the options with the ones found for your account
+#   short_code = 234 # replace with the shortcode from your account you wish to use
+#   test_number = "123456789"
+#   connection.submit_sm(short_code, test_number, "A message to send")
 class Wire2Air
 
 
