@@ -13,18 +13,26 @@ require 'uri'
 class Wire2Air
 
 
+  # Raised when the username or password is wrong
   class FailedAuthenticationError < StandardError; end
+  # Raised when there is insufficient credits to perform the action
   class NotEnoughCreditsError < StandardError; end
+  # Raised when a keyword being registered is already taken
   class KeywordIsTakenError < StandardError; end
+  # Raised when a service error occurred during account update
   class AccountUpdateError  < StandardError; end
+  # Raised when the credit card details were declined for purchase of additional credits
   class CreditCardDeclinedError < StandardError; end
 
 
+  # Stores details on a send sms job
   class JobId
+    # creates a job for the given mobile_number and sms_id
     def initialize(mobile_number, sms_id)
       @mobile_number, @sms_id = mobile_number, sms_id
     end
     attr_reader :mobile_number, :sms_id
+    # parses a JobId out of the return response from the wire2air http api
     def self.from_s(str)
       matches = str.match /^JOBID: (\d+):(\d+)/
       JobId.new(matches[1], matches[2])
@@ -38,7 +46,7 @@ class Wire2Air
   # @option opts [String] :username The user name to connect as
   # @option opts [String] :password The password (in plain text) for connecting
   # @option opts [Integer] :profile_id The id of the profile
-  # @options opts [Integer] :vasid The vasid of the account
+  # @option opts [Integer] :vasid The vasid of the account
   def initialize(opts)
     valid_keys =[:username, :password, :profile_id, :vasid]
     if opts.keys.sort != valid_keys.sort
