@@ -15,12 +15,12 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "wire2air"
-  gem.homepage = "http://github.com/nanothief/wire2air"
+  gem.homepage = "http://github.com/wire2air/wire2air"
   gem.license = "MIT"
   gem.summary = %Q{Ruby interface to the wire2air sms and voice mail service}
   gem.description = %Q{Allows sending sms and voice messages, checking and adding more credits, subscribing to keywords}
   gem.email = "davidmiani@gmail.com"
-  gem.authors = ["David Miani"]
+  gem.authors = ["Wire2Air"]
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
